@@ -1,8 +1,8 @@
 <h1 align="center">MongoDB Notes</h1>
 
-- [MongoDB:](#mongodb)
+- [Introduction:](#introduction)
   - [How a api code works:](#how-a-api-code-works)
-  - [What is CRUD Operation:](#what-is-crud-operation)
+- [CRUD Operation:](#crud-operation)
   - [Create(POST)](#createpost)
     - [insertOne():](#insertone)
     - [insertMany():](#insertmany)
@@ -26,11 +26,12 @@
     - [deleteOne():](#deleteone)
     - [deleteMany():](#deletemany)
     - [findOneAndDelete():](#findoneanddelete)
-  - [bulkWrite():](#bulkwrite)
-  - [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
+- [bulkWrite():](#bulkwrite)
+- [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
 
 
-# MongoDB:
+# Introduction:
+
 MongoDB is a NoSQL document database that stores data flexibly in JSON(Actually BSON = Binary JSON) format. Unlike traditional SQL relational databases with tables and rows, MongoDB uses collections and documents.
 
 Note: BSON is a binary-based representation of JSON. MongoDB uses this format for faster data operations, support for more data types, and efficient storage.
@@ -96,7 +97,7 @@ But in mongodb methods are already return js object when their promises resolve.
 
 
 
-## What is CRUD Operation:
+# CRUD Operation:
 
 | Operation  | HTTP Method   | Meaning          |
 | ---------- | ------------- | ---------------- |
@@ -1018,7 +1019,7 @@ app.delete('/users/:email', async (req, res) => {
 });
 ```
 
-## bulkWrite():
+# bulkWrite():
 bulkWrite() allows you to perform multiple write operations (insert/update/delete) operations at once:
 
 ```js
@@ -1046,7 +1047,7 @@ app.post('/users/bulk-update', async (req, res) => {
 });
 ```
 
-## Difference Between req.body, req.params and req.query:
+# Difference Between req.body, req.params and req.query:
 
 - req.body → used when we need requested body info:
 
