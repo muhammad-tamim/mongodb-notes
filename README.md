@@ -1,6 +1,7 @@
 <h1 align="center">MongoDB Notes</h1>
 
 - [Introduction:](#introduction)
+  - [SQL VS NoSQL:](#sql-vs-nosql)
   - [How a api code works:](#how-a-api-code-works)
 - [CRUD Operation:](#crud-operation)
   - [Create(POST)](#createpost)
@@ -31,12 +32,10 @@
 
 
 # Introduction:
+MongoDB is a NoSQL document based DBMS that stores data flexibly in BSON format instead of traditional SQL relational databases with tables and rows format. Unlike traditional relational databases that use tables and rows, MongoDB stores data as documents within collections and supports flexible schemas, allowing developers to evolve data structures over time.
 
-MongoDB is a NoSQL document database that stores data flexibly in JSON(Actually BSON = Binary JSON) format. Unlike traditional SQL relational databases with tables and rows, MongoDB uses collections and documents.
-
-Note: BSON is a binary-based representation of JSON. MongoDB uses this format for faster data operations, support for more data types, and efficient storage.
-
-Note: In the context of MongoDB, a document is basically a single record in a collection, similar to a row in a SQL database.
+## SQL VS NoSQL:
+In the context of MongoDB, a document is basically a single record in a collection, similar to a row in a SQL database.
 
 ```
 SQL                      MongoDB
@@ -45,8 +44,42 @@ Database                 Database
   └── Table                └── Collection
         └── Row                  └── Document
               └── Column               └── Field
-
 ```
+
+![alt text](./assets/images/Introduction/relational-vs-non-relatinal.png)
+
+SQL:
+```
+Users Table
+-----------
+id | name | email
+```
+
+MongoDB:
+```
+{
+  "_id": "123",
+  "name": "John",
+  "email": "john@example.com"
+}
+
+s
+{
+  "_id": "123",
+  "name": "John",
+  "orders": [
+    { "product": "Laptop", "price": 1000 }
+  ]
+}
+```
+
+
+| Feature       | SQL (Relational DB)     | NoSQL (MongoDB)         |
+| ------------- | ----------------------- | ----------------------- |
+| Structure     | Tables (rows & columns) | Collections (documents) |
+| Schema        | Fixed                   | Flexible                |
+| Relationships | Strong (JOINs)          | Weak / manual           |
+
 
 ## How a api code works:
 
@@ -94,7 +127,6 @@ fetch('api')
 ```
 
 But in mongodb methods are already return js object when their promises resolve. So inside express we don't need to use res.json(), we can directly send the object using res.send().
-
 
 
 # CRUD Operation:
