@@ -11,6 +11,7 @@
     - [find():](#find)
       - [cursor:](#cursor)
     - [findOne():](#findone)
+    - [projection:](#projection)
     - [countDocuments():](#countdocuments)
     - [distinct():](#distinct)
     - [aggregate() and Pipeline:](#aggregate-and-pipeline)
@@ -28,7 +29,8 @@
     - [deleteMany():](#deletemany)
     - [findOneAndDelete():](#findoneanddelete)
 - [bulkWrite():](#bulkwrite)
-- [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
+- [Others:](#others)
+  - [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
 
 
 # Introduction:
@@ -155,7 +157,7 @@ app.post('/users', async (req, res) => {
 });
 ```
 
-Note: Sometimes we generate some values ourselves:
+Note: Often we do lots of custom operation inside it:
 
 ```js
 // Create a single user with custom fields
@@ -172,7 +174,7 @@ app.post('/users', async (req, res) => {
 ```
 
 ### insertMany():
-Insert multiple documents
+To insert multiple documents at once, use the insertMany() method. This method inserts an array of objects into the database.
 
 ```js
 app.post('/users/bulk', async (req, res) => {
@@ -302,7 +304,6 @@ app.get('/users/names', async (req, res) => {
     res.send(result);
 });
 ```
-
 ### findOne():
 Get a single item by ID:
 
@@ -314,6 +315,18 @@ app.get('/users/:id', async (req, res) => {
     res.send(result);
 });
 ```
+
+### projection:
+Both find methods accept a second parameter called projection. This parameter is an object that describes which fields to include in the results. 
+
+```js
+app.get('/users', async (req, res) => {
+    const result = await usersCollection.find({}, {title: 1, date: 1});
+    res.send(result);
+});
+```
+
+Note: 1 means to include a field and 0 to exclude a field.
 
 ### countDocuments():
 returns a number after Counting matching documents
@@ -1079,7 +1092,8 @@ app.post('/users/bulk-update', async (req, res) => {
 });
 ```
 
-# Difference Between req.body, req.params and req.query:
+# Others: 
+## Difference Between req.body, req.params and req.query:
 
 - req.body → used when we need requested body info:
 
