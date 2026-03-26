@@ -33,6 +33,9 @@
   - [Comparison:](#comparison)
   - [Logical:](#logical)
   - [Evaluation:](#evaluation)
+- [Update Operators:](#update-operators)
+  - [Fields:](#fields)
+  - [Array:](#array)
 - [Others:](#others)
   - [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
 
@@ -1124,6 +1127,25 @@ The following operators assist in evaluating documents.
 - $regex: Allows the use of regular expressions when evaluating field values
 - $text: Performs a text search
 - $where: Uses a JavaScript expression to match documents
+
+# Update Operators: 
+There are many update operators that can be used during document updates.
+
+## Fields:
+The following operators can be used to update fields:
+- $currentDate: Sets the field value to the current date
+- $inc: Increments the field value
+- $rename: Renames the field
+- $set: Sets the value of a field
+- $unset: Removes the field from the document
+
+## Array:
+The following operators assist with updating arrays.
+
+- $addToSet: Adds distinct elements to an array
+- $pop: Removes the first or last element of an array
+- $pull: Removes all elements from an array that match the query
+- $push: Adds an element to an array
 
 # Others: 
 ## Difference Between req.body, req.params and req.query:
