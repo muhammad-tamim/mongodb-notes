@@ -3,6 +3,7 @@
 - [Introduction:](#introduction)
   - [SQL VS NoSQL:](#sql-vs-nosql)
   - [How a api code works:](#how-a-api-code-works)
+  - [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
 - [CRUD Operation:](#crud-operation)
   - [Create(POST)](#createpost)
     - [insertOne():](#insertone)
@@ -10,8 +11,13 @@
   - [Read(GET)](#readget)
     - [find():](#find)
       - [cursor:](#cursor)
+        - [1. `toArray`:](#1-toarray)
+        - [2. `limit()`:](#2-limit)
+        - [3. `skip()`:](#3-skip)
+        - [4. `sort()`:](#4-sort)
+        - [5. `forEach()`:](#5-foreach)
+        - [6. `map()`:](#6-map)
     - [findOne():](#findone)
-    - [projection:](#projection)
     - [countDocuments():](#countdocuments)
     - [distinct():](#distinct)
     - [aggregate() and Pipeline:](#aggregate-and-pipeline)
@@ -29,8 +35,6 @@
     - [deleteMany():](#deletemany)
     - [findOneAndDelete():](#findoneanddelete)
 - [bulkWrite():](#bulkwrite)
-- [Others:](#others)
-  - [Difference Between req.body, req.params and req.query:](#difference-between-reqbody-reqparams-and-reqquery)
 
 
 # Introduction:
@@ -64,15 +68,6 @@ MongoDB:
   "name": "John",
   "email": "john@example.com"
 }
-
-s
-{
-  "_id": "123",
-  "name": "John",
-  "orders": [
-    { "product": "Laptop", "price": 1000 }
-  ]
-}
 ```
 
 
@@ -86,6 +81,7 @@ s
 ## How a api code works:
 
 ```js
+// express
 app.post('/users', async (req, res) => {
     const user = req.body;
     const result = await usersCollection.insertOne(user);
@@ -131,6 +127,62 @@ fetch('api')
 But in mongodb methods are already return js object when their promises resolve. So inside express we don't need to use res.json(), we can directly send the object using res.send().
 
 
+## Difference Between req.body, req.params and req.query:
+
+- req.body → used when we need requested body info:
+
+Frontend:
+
+```js
+fetch('http://localhost:3000/users', {
+  method: 'POST',
+  headers: { 
+    'content-type': 'application/json' 
+  },
+  body: JSON.stringify({ name: "Tamim", email: "a@a.com" })
+})
+```
+
+Backend: 
+
+```js
+app.post('/users', async (req, res) => {
+    const newUser = req.body;
+    console.log(newUser) // { name: "Tamim", email: "a@a.com" }
+    const result = await usersCollection.insertOne(newUser);
+    res.send(result); 
+});
+```
+
+- req.params → used when we need requested url dynamic url path:
+
+```js
+app.get('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await usersCollection.findOne(query);
+    res.send(result);
+});
+```
+
+- req.query → used when we need requested url part after ?
+
+```js
+app.get('/users', async (req, res) => {
+    const page = parseInt(req.query.page); // http://localhost:3000/users?page=${page}
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const result = await usersCollection
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+    res.send(result);
+});
+```
+
 # CRUD Operation:
 
 | Operation  | HTTP Method   | Meaning          |
@@ -157,22 +209,6 @@ app.post('/users', async (req, res) => {
 });
 ```
 
-Note: Often we do lots of custom operation inside it:
-
-```js
-// Create a single user with custom fields
-app.post('/users', async (req, res) => {
-    const user = req.body;
-
-    // Generate custom fields
-    user.createdAt = new Date();
-    user.role = "user"; 
-
-    const result = await usersCollection.insertOne(user);
-    res.send(result);
-});
-```
-
 ### insertMany():
 To insert multiple documents at once, use the insertMany() method. This method inserts an array of objects into the database.
 
@@ -196,17 +232,19 @@ app.get('/users', async (req, res) => {
 });
 ```
 
-note: find() returns a **cursor**, so you need to use .toArray() methods to convert the cursor to array. 
+**Note:** find() returns a **cursor**, so you need to use .toArray() methods to convert the cursor to array. 
 
 #### cursor:
-A cursor is an object that MongoDB returns when you run a query like find(). It does not immediately give all the data — instead, it gives a pointer to the result set. Because MongoDB may return thousands or millions of documents, so returning all at once could:
+A cursor is an object that MongoDB returns when you run a query like find(). It does not immediately give all the data instead, it gives a pointer to the result set. Because MongoDB may return thousands or millions of documents, so returning all at once could:
 - use too much RAM
 - slow your server
 - cause performance issues
 
-A cursor also allows you to do `limit()`, `sort()`, `skip()`, `forEach()`, `map()`, `toArray()`:
-- `toArray`: 
+A cursor also allows you to do `limit()`, `sort()`, `skip()`, `forEach()`, `map()`, `toArray()` etc:
+
+##### 1. `toArray`: 
 Converts a cursor into a JavaScript array
+
 ```js
 app.get('/users', async (req, res) => {
 
@@ -220,7 +258,7 @@ res.send(result);
 });
 ```
 
-- `limit()`:
+##### 2. `limit()`:
 Limit how many documents you want
 
 ```js
@@ -234,8 +272,8 @@ app.get('/users', async (req, res) => {
 });
 ```
 
-- `skip()`:
-
+##### 3. `skip()`:
+Skips a specified number of documents
 
 ```js
 app.get('/users', async (req, res) => {
@@ -252,11 +290,11 @@ app.get('/users', async (req, res) => {
     res.send(result);
 });
 ```
-Page 1 → skip 0
-Page 2 → skip first 5
-Page 3 → skip first 10
+- Page 1 → skip 0
+- Page 2 → skip first 5
+- Page 3 → skip first 10
 
-- `sort()`:
+##### 4. `sort()`:
 Sort documents by a field
 
 ```js
@@ -271,7 +309,7 @@ app.get('/users', async (req, res) => {
 ```
 
 
-- `forEach()`:
+##### 5. `forEach()`:
 Iterate each element with no return:
 
 ```js
@@ -287,7 +325,7 @@ app.get('/users', async (req, res) => {
 });
 ```
 
-- `map()`:
+##### 6. `map()`:
 Iterate each element and returns a new cursor, not an array..
 
 ```js
@@ -316,17 +354,6 @@ app.get('/users/:id', async (req, res) => {
 });
 ```
 
-### projection:
-Both find methods accept a second parameter called projection. This parameter is an object that describes which fields to include in the results. 
-
-```js
-app.get('/users', async (req, res) => {
-    const result = await usersCollection.find({}, {title: 1, date: 1});
-    res.send(result);
-});
-```
-
-Note: 1 means to include a field and 0 to exclude a field.
 
 ### countDocuments():
 returns a number after Counting matching documents
@@ -364,8 +391,6 @@ db.collection.aggregate([
 ])
 ```
 
-
-
 Common Aggregation Operators:
 
 | Operator                   | Purpose                    |
@@ -383,7 +408,7 @@ Common Aggregation Operators:
 | `$gte`, `$lte`, `$eq` etc. | Comparison operators       |
 | `$cond`                    | Conditional expression     |
 
-Note: MongoDB has lots of operators,
+Note: MongoDB has lots of aggregation operators,
 
 ```js
 // Arithmetic & Statistical:
@@ -404,7 +429,7 @@ $toInt, $toDouble, $toString, $type, $convert, $round, $trunc, $floor, $ceil
 
 #### Common Aggregation Stages:
 
-- $match - Filters documents  
+- $match: Filters documents based on specified conditions (similar to a query filter).   
 
 ```js
 app.get('/users/adults', async (req, res) => {
@@ -432,7 +457,7 @@ Output:
 ]
 ```
 
-- $group - Groups documents and performs aggregations
+- $group: Groups documents by a key and applies aggregation operators (e.g., $sum, $avg, $count).
 
 ```js
 app.get('/users/city-count', async (req, res) => {
@@ -579,7 +604,7 @@ Output:
 ]
 ```
 
-- $project - Selects or reshapes fields
+- $project: Controls which fields are included, excluded, or reshaped in the output.
 
 ```js
 app.get('/users/names', async (req, res) => {
@@ -606,7 +631,8 @@ Output:
   { name: "Bob", age: 30 }
 ]
 ```
-- $sort - Sorts documents
+
+- $sort: Orders documents by one or more fields (ascending or descending).
 
 ```js
 app.get('/users/sorted', async (req, res) => {
@@ -634,7 +660,8 @@ Output:
   { name: "Charlie", age: 20 }
 ]
 ```
-- $limit - Limits the number of documents
+
+- $limit: Restricts the number of documents passed to the next stage.
 
 ```js
 app.get('/users/top-3', async (req, res) => {
@@ -665,7 +692,8 @@ Output:
   { name: "Eve", age: 28 }
 ]
 ```
-- $skip - Skips a number of documents (used for pagination)
+
+- $skip: Skips a specified number of documents (commonly used for pagination).
 
 ```js
 app.get('/users/page-2', async (req, res) => {
@@ -692,7 +720,8 @@ Output:
   { name: "David" }
 ]
 ```
-- $unwind - Deconstructs an array into separate documents
+
+- $unwind: Deconstructs an array into separate documents
 
 ```js
 app.get('/users/hobbies', async (req, res) => {
@@ -720,7 +749,7 @@ Output:
 ]
 ```
 
-- $lookup - Performs a LEFT JOIN with another collection
+- $lookup: Performs a left outer join with another collection and adds matching documents as an array.
 
 ```js
 app.get('/users/orders', async (req, res) => {
@@ -773,7 +802,7 @@ Output:
   }
 ]
 ```
-- $addFields - Adds new fields to documents
+- $addFields: Adds new fields or modifies existing fields without removing others.
 
 ```js
 app.get('/users/adult-flag', async (req, res) => {
@@ -802,7 +831,7 @@ Output:
   { name: "Charlie", age: 18, isAdult: true }
 ]
 ```
-- $count - Counts the number of documents
+- $count: Returns the total number of documents in the pipeline as a single result.
 
 ```js
 app.get('/users/count', async (req, res) => {
@@ -829,7 +858,7 @@ Output:
   { adultCount: 2 }
 ]
 ```
-- $facet - Performs multiple aggregations in parallel
+- $facet: Runs multiple independent pipelines in parallel on the same input and returns combined results.
 
 ```js
 app.get('/users/stats', async (req, res) => {
@@ -1094,62 +1123,6 @@ app.post('/users/bulk-update', async (req, res) => {
 
 
 
-# Others: 
-## Difference Between req.body, req.params and req.query:
-
-- req.body → used when we need requested body info:
-
-Frontend:
-
-```js
-fetch('http://localhost:3000/users', {
-  method: 'POST',
-  headers: { 
-    'content-type': 'application/json' 
-  },
-  body: JSON.stringify({ name: "Tamim", email: "a@a.com" })
-})
-```
-
-Backend: 
-
-```js
-app.post('/users', async (req, res) => {
-    const newUser = req.body;
-    console.log(newUser) // { name: "Tamim", email: "a@a.com" }
-    const result = await usersCollection.insertOne(newUser);
-    res.send(result); 
-});
-```
-
-- req.params → used when we need requested url dynamic url path:
-
-```js
-app.get('/users/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: new ObjectId(id) };
-    const result = await usersCollection.findOne(query);
-    res.send(result);
-});
-```
-
-- req.query → used when we need requested url part after ?
-
-```js
-app.get('/users', async (req, res) => {
-    const page = parseInt(req.query.page); // http://localhost:3000/users?page=${page}
-    const limit = 5;
-    const skip = (page - 1) * limit;
-
-    const result = await usersCollection
-        .find()
-        .skip(skip)
-        .limit(limit)
-        .toArray();
-
-    res.send(result);
-});
-```
 
 
 
