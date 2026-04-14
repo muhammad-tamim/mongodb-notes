@@ -1,7 +1,6 @@
 <h1 align="center">MongoDB Notes</h1>
 
 - [Introduction:](#introduction)
-  - [SQL VS NoSQL:](#sql-vs-nosql)
 - [CRUD Operation:](#crud-operation)
   - [Create(POST)](#createpost)
     - [insertOne():](#insertone)
@@ -37,44 +36,6 @@
 
 # Introduction:
 MongoDB is a NoSQL document based DBMS that stores data flexibly in BSON format instead of traditional SQL relational databases with tables and rows format. Unlike traditional relational databases that use tables and rows, MongoDB stores data as documents within collections and supports flexible schemas, allowing developers to evolve data structures over time.
-
-## SQL VS NoSQL:
-In the context of MongoDB, a document is basically a single record in a collection, similar to a row in a SQL database.
-
-```
-SQL                      MongoDB
-------------------       -------------------
-Database                 Database
-  └── Table                └── Collection
-        └── Row                  └── Document
-              └── Column               └── Field
-```
-
-![alt text](./assets/images/Introduction/relational-vs-non-relatinal.png)
-
-SQL:
-```
-Users Table
------------
-id | name | email
-```
-
-MongoDB:
-```
-{
-  "_id": "123",
-  "name": "John",
-  "email": "john@example.com"
-}
-```
-
-
-| Feature       | SQL (Relational DB)     | NoSQL (MongoDB)         |
-| ------------- | ----------------------- | ----------------------- |
-| Structure     | Tables (rows & columns) | Collections (documents) |
-| Schema        | Fixed                   | Flexible                |
-| Relationships | Strong (JOINs)          | Weak / manual           |
-
 
 
 # CRUD Operation:
